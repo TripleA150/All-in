@@ -4,7 +4,7 @@ set -e  # Скрипт завершится при любой ошибке
 
 # Определение путей
 SCRIPT_PATH="/opt/etc/nfqws/update.sh"
-TMP_UPDATE="/tmp/update.sh"
+TMP_UPDATE="/tmp/update1.sh"
 TMP_DOMAINS="/tmp/domains_all.txt"
 USER_LIST="/opt/etc/nfqws/user.list"
 UPDATE_URL="https://raw.githubusercontent.com/TripleA150/All-in/refs/heads/main/update1.sh"
