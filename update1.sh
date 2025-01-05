@@ -9,11 +9,15 @@ TMP_DOMAINS="/tmp/domains_all.txt"
 USER_LIST="/opt/etc/nfqws/user.list"
 UPDATE_URL="https://raw.githubusercontent.com/TripleA150/All-in/refs/heads/main/update1.sh"
 DOMAINS_URL="https://raw.githubusercontent.com/1andrevich/Re-filter-lists/main/domains_all.lst"
+LOG_FILE="/var/log/nfqws_update.log"
 
 # Функция для логирования
 log() {
-  echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
+  echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
 }
+
+# Обработка сигналов для очистки
+trap 'rm -f "$TMP_UPDATE" "$TMP_DOMAINS"' EXIT
 
 # Загрузка скрипта обновления
 log "Загрузка обновления скрипта с $UPDATE_URL..."
@@ -40,11 +44,22 @@ if ! cmp -s "$TMP_UPDATE" "$SCRIPT_PATH"; then
   
   if ! [ -x "$SCRIPT_PATH" ]; then
     log "Ошибка: обновлённый скрипт не имеет прав на выполнение."
-    mv "${SCRIPT_PATH}.bak" "$SCRIPT_PATH"
+    mv "${SCRIPT_PATH}.bak" "$SCRIPT_path"
     exit 1
   fi
   
+  # Конвертация переносов строк, если необходимо
+  if file "$SCRIPT_PATH" | grep -q 'CRLF'; then
+    log "Конвертация переносов строк из CRLF в LF..."
+    dos2unix "$SCRIPT_PATH" || { log "Ошибка конвертации переносов строк."; mv "${SCRIPT_PATH}.bak" "$SCRIPT_PATH"; exit 1; }
+  fi
+  
+  # Вывод содержимого скрипта для диагностики
+  log "Содержимое обновлённого скрипта $SCRIPT_PATH:"
+  cat "$SCRIPT_PATH" | tee -a "$LOG_FILE"
+  
   # Проверка синтаксиса скрипта
+  log "Проверка синтаксиса обновлённого скрипта..."
   if ! /bin/sh -n "$SCRIPT_PATH"; then
     log "Ошибка: синтаксическая ошибка в обновлённом скрипте."
     mv "${SCRIPT_PATH}.bak" "$SCRIPT_PATH"
@@ -94,5 +109,4 @@ log "Перезапуск службы S51nfqws..."
 /opt/etc/init.d/S51nfqws restart
 log "Служба успешно перезапущена."
 
-# Очистка временных файлов
-rm -f "$TMP_DOMAINS"
+# Очистка временных файлов (уже обрабатывается через trap)
