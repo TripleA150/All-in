@@ -3,7 +3,7 @@
 set -e  # Скрипт завершится при любой ошибке
 
 # Определение путей
-SCRIPT_PATH="/opt/etc/nfqws/update.sh"
+SCRIPT_PATH="/opt/etc/nfqws/update1.sh"
 TMP_UPDATE="/tmp/update1.sh"
 TMP_DOMAINS="/tmp/domains_all.txt"
 USER_LIST="/opt/etc/nfqws/user.list"
