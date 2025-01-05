@@ -2,7 +2,7 @@
 
 SCRIPT_PATH="/opt/etc/nfqws/update.sh"
 
-curl -o /tmp/update.sh https://raw.githubusercontent.com/TripleA150/All-in/refs/heads/main/update1.sh
+curl -o /tmp/update.sh https://raw.githubusercontent.com/TripleA150/All-in/refs/heads/main/update.sh
 
 # Проверяем, изменился ли файл
 if ! cmp -s /tmp/update.sh "$SCRIPT_PATH"; then
