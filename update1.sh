@@ -4,11 +4,11 @@
 set -e
 
 # Определение переменных
-SCRIPT_PATH="/opt/etc/nfqws/update1.sh"
-TMP_UPDATE="/tmp/update1.sh"
+SCRIPT_PATH="/opt/etc/nfqws/update.sh"
+TMP_UPDATE="/tmp/update.sh"
 TMP_DOMAINS="/tmp/domains_all.txt"
 USER_LIST="/opt/etc/nfqws/user.list"
-UPDATE_URL="https://raw.githubusercontent.com/TripleA150/All-in/refs/heads/main/update1.sh"
+UPDATE_URL="https://raw.githubusercontent.com/TripleA150/All-in/refs/heads/main/update.sh"
 DOMAINS_URL="https://raw.githubusercontent.com/1andrevich/Re-filter-lists/main/domains_all.lst"
 LOG_FILE="/var/log/nfqws_update.log"
 
