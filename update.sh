@@ -29,11 +29,10 @@ if ! curl -sf -o "$TMP_UPDATE" "$UPDATE_URL"; then
 fi
 
 # Проверка наличия shebang в загруженном скрипте
-first_line=$(head -n 1 "$TMP_UPDATE")
-if echo "$first_line" | grep -q "^#!"); then
+if head -n 1 "$TMP_UPDATE" | grep -q '^#!/'; then
     log "Загруженный скрипт содержит shebang."
 else
-    log "Ошибка: Загруженный скрипт не содержит shebang."
+    log "Ошибка: Загруженный скрипт не содержит shebang или повреждён."
     rm "$TMP_UPDATE"
     exit 1
 fi
