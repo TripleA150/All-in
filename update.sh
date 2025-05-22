@@ -7,9 +7,10 @@ set -e
 SCRIPT_PATH="/opt/etc/nfqws/update.sh"
 TMP_UPDATE="/opt/tmp/update.sh"
 TMP_DOMAINS="/opt/tmp/domains_all.txt"
+EXCLUDE_LIST="/opt/tmp/exclude.list"
 USER_LIST="/opt/etc/nfqws/user.list"
-UPDATE_URL="https://raw.githubusercontent.com/TripleA150/All-in/refs/heads/main/update.sh"
-DOMAINS_URL="https://raw.githubusercontent.com/1andrevich/Re-filter-lists/main/domains_all.lst"
+UPDATE_URL="https://raw.githubusercontent.com/TripleA150/All-in/refs/heads/main/update.sh "
+DOMAINS_URL="https://raw.githubusercontent.com/1andrevich/Re-filter-lists/main/domains_all.lst "
 LOG_FILE="/opt/var/log/nfqws_update.log"
 
 # Функция для логирования
@@ -29,7 +30,7 @@ fi
 
 # Проверка наличия shebang в загруженном скрипте
 first_line=$(head -n 1 "$TMP_UPDATE")
-if echo "$first_line" | grep -q "^#!"; then
+if echo "$first_line" | grep -q "^#!"); then
     log "Загруженный скрипт содержит shebang."
 else
     log "Ошибка: Загруженный скрипт не содержит shebang."
@@ -82,14 +83,35 @@ if ! curl -sf -o "$TMP_DOMAINS" "$DOMAINS_URL"; then
     exit 1
 fi
 
-# Удаление поддоменов
-log "Удаление поддоменов из списка."
+# Загрузка списка исключений
+log "Загрузка списка исключений с https://raw.githubusercontent.com/TripleA150/All-in/refs/heads/main/exclude.lst "
+if ! curl -sf -o "$EXCLUDE_LIST" "https://raw.githubusercontent.com/TripleA150/All-in/refs/heads/main/exclude.lst "; then
+    log "Ошибка: Не удалось загрузить список исключений."
+    exit 1
+fi
+
+# Удаление поддоменов и исключение нежелательных доменов
+log "Обработка списка доменов: удаление поддоменов и исключение нежелательных."
+
 awk '
+BEGIN {
+    # Чтение исключений в массив exclude
+    while ((getline line < "'"$EXCLUDE_LIST"'") > 0) {
+        if (line != "") {
+            exclude[line] = 1
+        }
+    }
+    close("'"$EXCLUDE_LIST"'")
+}
+
 {
     domain[$0] = 1
 }
 END {
     for (d in domain) {
+        # Пропустить, если домен в списке исключения
+        if (exclude[d]) continue
+
         skip = 0
         temp = d
         while (match(temp, /\.[^.]+$/)) {
@@ -115,7 +137,7 @@ else
 fi
 
 # Очистка временных файлов
-rm -f "$TMP_DOMAINS"
+rm -f "$TMP_DOMAINS" "$EXCLUDE_LIST"
 
 log "Скрипт обновления завершён успешно."
 
