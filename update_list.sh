@@ -29,6 +29,6 @@ fi
 mv "$FINAL_FILE" "$OUTPUT"
 
 killall nfqws
-/opt/etc/init.d/S51nfqws restart
+/opt/etc/init.d/S51nfqws start
 
 rm -rf "$TMP_DIR"
